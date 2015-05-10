@@ -46,7 +46,4 @@
 }
 
 @media (max-width: 767px) {
-	#hero-text-container {
-		transform: translateY(-100%);
-	}
 }

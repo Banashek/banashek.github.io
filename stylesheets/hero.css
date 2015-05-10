@@ -60,9 +60,6 @@
 	#hero-wrap-outer {
 		height: 150px;
 	}
-	#hero-container {
-		transform: translateY(-100%);
-	}
 	#hero-header {
 		font-size: 2em;
 	}
