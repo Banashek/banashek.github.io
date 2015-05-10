@@ -61,7 +61,7 @@
 		height: 150px;
 	}
 	#hero-container {
-		transform: translateY(-80%);
+		transform: translateY(-100%);
 	}
 	#hero-header {
 		font-size: 2em;
