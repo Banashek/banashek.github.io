@@ -74,7 +74,7 @@ h1 {
 /* Shrink stuff for mobile */
 @media (max-width: 767px) {
   header {
-    height: 75px;
+    height: 80px;
   }
   
   #header_name {
