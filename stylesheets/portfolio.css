@@ -1,0 +1,10 @@
+.project {
+	margin-left: 5em;
+}
+		
+.project-image {
+	float: left;
+	margin-right: 2em;
+	height: 30%;
+	width: 30%;
+}
