@@ -51,12 +51,6 @@ header div a:last {
   margin-bottom: 5px;
 }
 
-.me_links {
-  font-family: Ubuntu;
-  display: block;
-  margin-left: 5px;
-}
-
 #header_name {
   text-decoration: none;
 }
@@ -73,10 +67,6 @@ h1 {
   margin: 0px 4%;
 }
 
-footer p {
-  margin-bottom: 0px;
-}
-
 /* Shrink stuff for mobile */
 @media (max-width: 767px) {
   header {
@@ -91,7 +81,7 @@ footer p {
     margin: 5px 0;
   }
   
-  #main-content, footer {
+  #main-content {
   margin: 0px 2%;
   }
 }
