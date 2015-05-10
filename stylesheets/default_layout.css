@@ -59,11 +59,15 @@ header div a:last {
   color: #4A4A4A;
 }
 
+#inner {
+  vertical-align: middle;
+}
+
 h1 {
   color: #FF6138;
 }
 
-#main-content, footer {
+#main-content{
   margin: 0px 4%;
 }
 
