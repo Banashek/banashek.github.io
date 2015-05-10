@@ -43,18 +43,10 @@
       </div>
     </div>
   </body>
-  <!--Include files for animated header only if it's being loaded and we're not mobile. 
-      Done after body because I can't check if mobile or not for jekyll includes, so I'd rather the
-      page load quickly and then grab these (unnecessary for mobile) scripts-->
-      
-  {% if page.title == 'Banahome' %}
-    <script>
-      if (screen && screen.width > 750) {
+  <script>
         document.write('<script type="text/javascript" src="js/animated-background/EasePack.min.js"><\/script>' + 
                        '<script type="text/javascript" src="js/animated-background/rAF.js"><\/script>' + 
                        '<script type="text/javascript" src="js/animated-background/TweenLite.min.js"><\/script>' + 
                        '<script type="text/javascript" src="js/animated-background/animated-background.js"><\/script>');
-      }
-    </script>
-  {% endif %}
+   </script>
 </html>

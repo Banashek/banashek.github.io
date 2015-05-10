@@ -41,13 +41,6 @@
 }
 
 @media (max-width: 767px) {
-	#hero-text-container {
-	    margin: 0 auto;
-		text-align: center;
-		transform: translateY(-50%, -50%);
-		position: absolute;
-	}
-	
 	#hero-text {
 		font-size: 2em;
 	}
