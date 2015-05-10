@@ -44,9 +44,3 @@
 	color: #F7F7F7;
 	margin: 0 0 5px 0;
 }
-
-@media (max-width: 767px) {
-	canvas {
-		display: none;
-	}
-}
