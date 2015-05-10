@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/default_layout.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/stylesheets/hero.css" media="screen" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title> {{ page.title }} </title>
+  </head>
+
+  <body>
+    <header id="main-header">
+      <div class="inner">
+        <h1><a href="{{ site.url }}/" id="header_name"> {{ site.name }} </a></h1>
+        <a href="{{ site.url }}/Blog.html">Blog</a>
+        <a href="{{ site.url }}/About.html">About</a>
+        <a href="{{ site.url }}/Portfolio.html">Portfolio</a>
+      </div>
+    </header>
+    
+    <!--Include animated background on home page-->
+    {% if page.title != 'Banahome' %}
+      {% include hero.html %}
+    {% else %}
+      <link rel="stylesheet" type="text/css" href="/stylesheets/animated_background.css" media="screen" />
+      {% include animated_background.html %}
+    {% endif %}
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          
+          {{ content }}
+
+        </section>
+      </div>
+    </div>
+    
+    <footer>
+      <p>Find me on:</p>
+      <a href="https://github.com/Banashek" class="me_links">Github</a>
+      <a href="https://www.linkedin.com/pub/jonathan-banashek/30/409/758" class="me_links">LinkedIn</a>
+    </footer>
+
+  </body>
+  <!--Include files for animated header only if it's being loaded and we're not mobile. 
+      Done after body because I can't check if mobile or not for jekyll includes, so I'd rather the
+      page load quickly and then grab these (unnecessary for mobile) scripts-->
+      
+  {% if page.title == 'Banahome' %}
+    <script>
+      if (screen && screen.width > 750) {
+        document.write('<script type="text/javascript" src="js/animated-background/EasePack.min.js"><\/script>' + 
+                       '<script type="text/javascript" src="js/animated-background/rAF.js"><\/script>' + 
+                       '<script type="text/javascript" src="js/animated-background/TweenLite.min.js"><\/script>' + 
+                       '<script type="text/javascript" src="js/animated-background/animated-background.js"><\/script>');
+      }
+    </script>
+  {% endif %}
+</html>

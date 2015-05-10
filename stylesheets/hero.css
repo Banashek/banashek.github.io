@@ -1,0 +1,69 @@
+@font-face {
+  font-family: 'Ubuntu';
+  src: url('../fonts/Ubuntu-R.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Ubuntu-LI';
+  src: url('../fonts/Ubuntu-Li.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+#hero-wrap-outer {
+	background-color: #2769A5;
+	color: #FFFFFF;
+	width: auto;
+	height: 300px;
+	-webkit-box-shadow: inset 0 8px 8px -8px black, inset 0 -8px 8px -8px black;
+	-moz-box-shadow: inset 0 8px 8px -8px black, inset 0 -8px 8px -8px black;
+	box-shadow: inset 0 8px 8px -8px black, inset 0 -8px 8px -8px black;
+}
+
+#hero-bg-texture {
+	background-image: url("../images/hero-bg-texture.png");
+	width: 100%;
+	height: 100%; 
+	opacity: 1;
+	background-repeat: repeat;
+	background-size: 5%;
+	padding: 0;
+	margin: 0;
+}
+
+#hero-container {
+    width: 50%;
+    margin: 0 auto;
+	text-align: center;
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+#hero-header {
+	font-family: Ubuntu;
+	font-size: 3em;
+	color: #F7F7F7;
+	margin: 0 0 5px 0;
+}
+
+#hero-detail {
+  	font-family: Ubuntu-LI;
+	font-size: 1.5em;
+	margin: 0 0 0 0;
+}
+
+/* Shrink stuff for mobile */
+@media (max-width: 767px) {
+	#hero-wrap-outer {
+		height: 150px;
+	}
+	#hero-header {
+		font-size: 2em;
+	}
+	#hero-detail {
+		font-size: 1em;
+	}
+}
