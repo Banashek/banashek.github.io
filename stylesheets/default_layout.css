@@ -17,6 +17,7 @@ body {
   color: #4A4A4A;
   background-color: #F7F7F7;
   margin: 0px 0px 0px 0px;
+  height:100%;
 }
 
 header {
@@ -77,15 +78,15 @@ h1 {
   header {
     height: 80px;
   }
-  
+
   #header_name {
     font-size: .8em;
   }
-  
+
   h1 {
     margin: 5px 0;
   }
-  
+
   #main-content {
     	margin: 0px 2%;
   }

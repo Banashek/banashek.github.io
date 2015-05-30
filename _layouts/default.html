@@ -26,30 +26,24 @@
         <a href="https://www.linkedin.com/pub/jonathan-banashek/30/409/758"><span class="fa fa-linkedin-square fa-2x"></span></a>
       </div>
     </header>
-    
+
     <!--Include animated background on home page-->
     {% if page.title != 'Banahome' %}
       <link rel="stylesheet" type="text/css" href="/stylesheets/hero.css" media="screen" />
       {% include hero.html %}
     {% else %}
-      <link rel="stylesheet" type="text/css" href="/stylesheets/animated_background.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="/stylesheets/animated_background.css" media="screen" />
       {% include animated_background.html %}
     {% endif %}
 
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          
+
           {{ content }}
 
         </section>
       </div>
     </div>
   </body>
-  <script>
-        document.write('<script type="text/javascript" src="js/animated-background/EasePack.min.js"><\/script>' + 
-                       '<script type="text/javascript" src="js/animated-background/rAF.js"><\/script>' + 
-                       '<script type="text/javascript" src="js/animated-background/TweenLite.min.js"><\/script>' + 
-                       '<script type="text/javascript" src="js/animated-background/animated-background.js"><\/script>');
-   </script>
 </html>
