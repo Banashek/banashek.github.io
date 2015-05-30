@@ -12,19 +12,23 @@
   font-style: normal;
 }
 
+html {
+	height:100%;
+}
+
 body {
   font-family: UbuntuLight;
   color: #4A4A4A;
   background-color: #F7F7F7;
   margin: 0px 0px 0px 0px;
-  height:100%;
+  height: calc(100% - 120px);
 }
 
 header {
   font-family: Ubuntu;
   background-color: #F7F7F7;
   width: 100%;
-  height: 100px;
+  height: 120px;
 }
 
 a {
@@ -77,6 +81,10 @@ h1 {
 @media (max-width: 767px) {
   header {
     height: 80px;
+  }
+
+  body {
+  	height:calc(100% - 120px);
   }
 
   #header_name {
