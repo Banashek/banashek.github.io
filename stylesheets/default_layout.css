@@ -77,6 +77,10 @@ h1 {
   margin: 0px 4%;
 }
 
+#content-wrapper {
+	padding-bottom: 20px;
+}
+
 /* Shrink stuff for mobile */
 @media (max-width: 767px) {
   header {
