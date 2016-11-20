@@ -16,11 +16,15 @@ h1,h2,h3 {
 
 a {
   text-decoration: none;
-  color: #4A4A4A;
+  color: #1661FF ;
 }
 
 a:hover {
   color: maroon;
+}
+
+.header-link, .post-link {
+  color: #4A4A4A;
 }
 
 header {
@@ -45,4 +49,8 @@ svg {
   width: 1.75em;
   height: 1.75em;
   fill: currentColor;
+}
+
+code {
+  background-color: white;
 }

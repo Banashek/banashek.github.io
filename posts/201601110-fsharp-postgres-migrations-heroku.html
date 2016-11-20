@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../style.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="post.css" media="screen" />
+    <title>Jonathan Banashek - Blog</title>
+  </head>
+
+  <body>
+    <header>
+      <h1>Jonathan Banashek</h1>
+      <nav>
+        <ul>
+          <li><a href="https://www.github.com/banashek" class="header-link"><svg class="icon icon-github-square"><use xlink:href="#icon-github-square"></use></svg></a></li>
+          <li><a href="../index.html" class="header-link">Blog</a></li>
+          <li><a href="../portfolio.html" class="header-link">Portfolio</a></li>
+	  	  <li><a href="../about.html" class="header-link">About</a></li>
+          <li><a href="https://www.linkedin.com/pub/jonathan-banashek/30/409/758" class="header-link"><svg class="icon icon-linkedin-square"><use xlink:href="#icon-linkedin-square"></use></svg></a></li>
+        </ul>
+      </nav>
+    </header>
+    <hr>
+    <main>
+      <section>
+		  <h2 class="title">F# PostgreSQL migrations using FluentMigrator on Heroku</h2>
+
+          <h3>Why Heroku?</h3>
+		  <p>
+			  On my latest Suave project, I decided that instead of dealing with managing 
+              my deployments with docker-compose (and some of the complexity that comes with
+              getting a robust production system in place), I'd try out a PaaS solution.
+		  </p>
+          <p>
+              For a Suave application, it looks like my options were Azure or Heroku.
+              For most of the CRUD applications I write, I like to have a custom domain name, SSL, 
+              and a database so that I can have my users sign in securely (Most applications I want to 
+              write have users in it somewhere). 
+          </p>
+          <p>
+              On Azure, the minimum price for a S1 App Service 
+              (custom domain and ssl) and the basic tier of AzureDb is $80/month. On Heroku, the Hobby tier with the Hobby postgres is
+              $7/month. Even if I didn't have previous bad experience with Azure support, the cost difference
+              for a project I'm just feeling out is a no brainer.
+          </p>
+		  <p>
+			  Figuring out database migrations was probably the most tricky part of getting set up on heroku, 
+              and was more because of the choice and documentation of F# options rather than anything to do with heroku
+              itself.
+		  </p>
+
+		  <h3>The problem</h3>
+          <p>
+              I've worked as a Build/Release engineer and as a DevOps engineer previous to working in development, 
+              and have had experience with a few different database versioning techniques. 
+          </p>
+          <p>
+              The problem that a database migration system attempts to solve is that of managing the schema of the application'so
+              database in a reliable manner while providing features to ease development.
+          </p>
+          <p>
+              This can include, but is not limited to:
+              <ul>
+                  <li>All changes are tracked in version control</li>
+                  <li>Changes are reversible in the case that a change is incorrect or breaks something</li>
+                  <li>A specific set of changes can be created for certain environments (test, integration, production)</li>
+              </ul>
+          </p>
+
+		  <h3>Options for handling database migrations</h3>
+          <p>
+              When researching the options for this, there seemed to be 3 types:
+              <ol>
+                  <li>.Net solutions (FluentMigrator, EF migrations)</li>
+                  <li>Using another language project just for the migrations tool (ActiveRecord Migrations, node-pg-migrate, LiquiBase)</li>
+                  <li>Using a sql file based approach (sqitch, custom solution)</li>
+              </ol>
+              I have the most experience with #3, but really wanted to use #1.
+          </p>
+
+          <h3>Setting up FluentMigrator</h3>
+          <p>
+              I chose FluentMigrator partly because I've enjoyed most Fluent-anything libraries I've used in C#, 
+              but mostly because it had a <a href="https://github.com/fsharp/FAKE/tree/master/src/app/Fake.FluentMigrator">FAKE Helper</a>.
+          </p>
+          <p>
+              There isn't much documentation for the FAKE-fluentmigrations other than a 
+              <a href="https://github.com/fsharp/FAKE/tree/master/src/app/Fake.FluentMigrator/Sample">sample</a>
+              which didn't use PostgreSQL and didn't match up with how I wanted to run the migrations.
+          </p>
+          <p>
+              The first thing that needs to be done is to add the required packages to your project. 
+              If you're using PostgreSQL, then this is:
+              <code>FAKE.FluentMigrator</code>,
+              <code>FluentMigrator</code>,
+              <code>Npgsql</code>, and
+              <code>FluentMigrator.Tools</code>
+          </p>
+          <p>
+              Step two, create the migrations. I do this under a <code>/db/migrations/</code> folder.
+          </p>
+
+          <h3>CreateUsersTable.cs</h3>
+          <!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">using</span> <span style="color: #0e84b5; font-weight: bold">FluentMigrator</span>;
+
+<span style="color: #008800; font-weight: bold">namespace</span> <span style="color: #0e84b5; font-weight: bold">MyProj</span>
+{
+<span style="color: #0000CC">    [Migration(1, &quot;Create users table&quot;)]</span>	
+    <span style="color: #008800; font-weight: bold">public</span> <span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">CreateUsersTable</span> : AutoReversingMigration
+    {
+        <span style="color: #008800; font-weight: bold">public</span> <span style="color: #008800; font-weight: bold">override</span> <span style="color: #008800; font-weight: bold">void</span> <span style="color: #0066BB; font-weight: bold">Up</span>()
+        {
+            Create.Table(<span style="background-color: #fff0f0">&quot;Users&quot;</span>)
+                .WithColumn(<span style="background-color: #fff0f0">&quot;Id&quot;</span>).AsInt32().NotNullable().PrimaryKey().Identity()
+                .WithColumn(<span style="background-color: #fff0f0">&quot;Username&quot;</span>).AsString()
+                .WithColumn(<span style="background-color: #fff0f0">&quot;Email&quot;</span>).AsString()
+                .WithColumn(<span style="background-color: #fff0f0">&quot;EmailConfirmed&quot;</span>).AsBoolean().NotNullable().WithDefaultValue(<span style="color: #008800; font-weight: bold">false</span>);
+        }
+    }
+}
+</pre></div>
+
+          <p>
+              The migrations are created as C# files. After creating this file, add the file to the project below the other project
+              files with a line like this: <br/><code>&lt;None Include="db/migrations/CreateUsersTable.cs" /&gt;</code>
+          </p>
+
+          <p>
+              Documentation for how these migrations work can be found in the FluentMigrator documentation
+              wiki <a href="https://github.com/schambers/fluentmigrator/wiki">here</a>.
+          </p>
+
+          <h3>Setting up the FAKE target</h3>
+          <p>
+              Setting up the FAKE target involves a few steps:
+              <ol>
+                  <li>Reference the required libraries</li>
+                  <li>Configure the values needed for the CscHelper (to compile our C# to a dll for FAKE.FluentMigrator to use)</li>
+                  <li>Create a compile function to compile the C# files to a dll</li>
+                  <li>Convert the <code>DATABASE_URL</code> environment variable to the appropriate SQL string for FluentMigrator</li>
+                  <li>Create the FAKE target to run the migrations</li>
+              </ol>
+          </p>
+
+          <h4>Referencing the required libraries</h4>
+          <p>
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #333333">#</span>r <span style="background-color: #fff0f0">&quot;./packages/FAKE.FluentMigrator/tools/Fake.FluentMigrator.dll&quot;</span>
+<span style="color: #333333">#</span>r <span style="background-color: #fff0f0">&quot;./packages/FAKE.FluentMigrator/tools/FluentMigrator.Runner.dll&quot;</span>
+<span style="color: #333333">#</span>r <span style="background-color: #fff0f0">&quot;./packages/Npgsql/lib/net45/Npgsql.dll&quot;</span>
+<span style="color: #008800; font-weight: bold">open</span> <span style="color: #BB0066; font-weight: bold">Npgsql</span>
+<span style="color: #008800; font-weight: bold">open</span> <span style="color: #0e84b5; font-weight: bold">Fake</span>.<span style="color: #BB0066; font-weight: bold">CscHelper</span>
+<span style="color: #008800; font-weight: bold">open</span> <span style="color: #0e84b5; font-weight: bold">Fake</span>.<span style="color: #BB0066; font-weight: bold">FluentMigratorHelper</span>
+</pre></div>
+          </p>
+
+          <h4>Configure the values needed for compiling C# files</h4>
+          <p>
+              For me this looks like this:<br />
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">let</span> rootDir <span style="color: #333333">=</span> <span style="color: #333333">__</span>SOURCE_DIRECTORY__
+<span style="color: #008800; font-weight: bold">let</span> fluentMigratorDll <span style="color: #333333">=</span> rootDir <span style="color: #333333">@@</span> <span style="background-color: #fff0f0">&quot;packages/FluentMigrator/lib/40/FluentMigrator.dll&quot;</span>
+<span style="color: #008800; font-weight: bold">let</span> migrationsAssemblyOut <span style="color: #333333">=</span> rootDir <span style="color: #333333">@@</span> <span style="background-color: #fff0f0">&quot;MyProj.migrations.dll&quot;</span>
+<span style="color: #008800; font-weight: bold">let</span> migrations <span style="color: #333333">=</span> <span style="color: #333333">[</span>
+  rootDir <span style="color: #333333">@@</span> <span style="background-color: #fff0f0">&quot;db/migrations/CreateUsersTable.cs&quot;</span>
+<span style="color: #333333">]</span>
+<span style="color: #008800; font-weight: bold">let</span> options <span style="color: #333333">=</span> <span style="color: #BB0066; font-weight: bold">DefaultMigrationOptions</span>
+</pre></div>
+          </p>
+          
+          <h4>Create a compile function to compile the C# files to a dll</h4>
+          <p>
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">let</span> compile<span style="color: #007020">()</span> <span style="color: #333333">=</span>
+  migrations <span style="color: #333333">|&gt;</span> <span style="color: #BB0066; font-weight: bold">Csc</span> <span style="color: #333333">(</span><span style="color: #008800; font-weight: bold">fun</span> p <span style="color: #333333">-&gt;</span> <span style="color: #333333">{</span>p <span style="color: #008800; font-weight: bold">with</span> <span style="color: #BB0066; font-weight: bold">References</span> <span style="color: #333333">=</span> <span style="color: #333333">[</span>fluentMigratorDll<span style="color: #333333">];</span> <span style="color: #BB0066; font-weight: bold">Output</span> <span style="color: #333333">=</span> migrationsAssemblyOut<span style="color: #333333">;</span> <span style="color: #BB0066; font-weight: bold">Target</span> <span style="color: #333333">=</span> <span style="color: #BB0066; font-weight: bold">Library</span><span style="color: #333333">;</span> <span style="color: #BB0066; font-weight: bold">Debug</span> <span style="color: #333333">=</span> <span style="color: #007020">true</span><span style="color: #333333">})</span>
+</pre></div>
+          </p>
+
+          <h4>Convert the <code>DATABASE_URL</code> environment variable to the appropriate SQL string for FluentMigrator</h4>
+          <p>
+              I figured out the scheme of the connection URL expected by FluentMigrator by looking 
+              <a href="https://github.com/schambers/fluentmigrator/wiki/Migration-Runners">here</a>.
+              I keep a <code>dburi</code> environment variable on local for this project. This
+              can be improved but this was the minimum I did to get it to work (it was late at night =P).
+          </p>
+          <p>
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">let</span> connection <span style="color: #333333">=</span>
+  <span style="color: #008800; font-weight: bold">let</span> postgresdburl <span style="color: #333333">=</span> <span style="color: #0e84b5; font-weight: bold">Environment</span>.<span style="color: #BB0066; font-weight: bold">GetEnvironmentVariable</span><span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;DATABASE_URL&quot;</span><span style="color: #333333">)</span>
+  <span style="color: #008800; font-weight: bold">if</span> postgresdburl <span style="color: #333333">&lt;&gt;</span> <span style="color: #008800; font-weight: bold">null</span> <span style="color: #008800; font-weight: bold">then</span>
+    <span style="color: #008800; font-weight: bold">let</span> m <span style="color: #333333">=</span> <span style="color: #0e84b5; font-weight: bold">Regex</span>.<span style="color: #BB0066; font-weight: bold">Match</span><span style="color: #333333">(</span>postgresdburl<span style="color: #333333">,</span> <span style="background-color: #fff0f0">&quot;postgres://(.*):(.*)@(.*):(.*)/(.*)&quot;</span><span style="color: #333333">)</span>
+    <span style="color: #008800; font-weight: bold">let</span> cstring <span style="color: #333333">=</span>
+      <span style="background-color: #fff0f0">&quot;Server=&quot;</span>   <span style="color: #333333">+</span> m<span style="color: #333333">.</span><span style="color: #0e84b5; font-weight: bold">Groups</span>.<span style="color: #FF0000; background-color: #FFAAAA">[3]</span>.<span style="color: #BB0066; font-weight: bold">Value</span> <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot;;&quot;</span> <span style="color: #333333">+</span>
+      <span style="background-color: #fff0f0">&quot;Port=&quot;</span>     <span style="color: #333333">+</span> m<span style="color: #333333">.</span><span style="color: #0e84b5; font-weight: bold">Groups</span>.<span style="color: #FF0000; background-color: #FFAAAA">[4]</span>.<span style="color: #BB0066; font-weight: bold">Value</span> <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot;;&quot;</span> <span style="color: #333333">+</span> 
+      <span style="background-color: #fff0f0">&quot;Database=&quot;</span> <span style="color: #333333">+</span> m<span style="color: #333333">.</span><span style="color: #0e84b5; font-weight: bold">Groups</span>.<span style="color: #FF0000; background-color: #FFAAAA">[5]</span>.<span style="color: #BB0066; font-weight: bold">Value</span> <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot;;&quot;</span> <span style="color: #333333">+</span>
+      <span style="background-color: #fff0f0">&quot;User Id=&quot;</span>  <span style="color: #333333">+</span> m<span style="color: #333333">.</span><span style="color: #0e84b5; font-weight: bold">Groups</span>.<span style="color: #FF0000; background-color: #FFAAAA">[1]</span>.<span style="color: #BB0066; font-weight: bold">Value</span> <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot;;&quot;</span> <span style="color: #333333">+</span>
+      <span style="background-color: #fff0f0">&quot;Password=&quot;</span> <span style="color: #333333">+</span> m<span style="color: #333333">.</span><span style="color: #0e84b5; font-weight: bold">Groups</span>.<span style="color: #FF0000; background-color: #FFAAAA">[2]</span>.<span style="color: #BB0066; font-weight: bold">Value</span> <span style="color: #333333">+</span> <span style="background-color: #fff0f0">&quot;;&quot;</span>
+    <span style="color: #BB0066; font-weight: bold">ConnectionString</span><span style="color: #333333">(</span>cstring<span style="color: #333333">,</span> <span style="color: #BB0066; font-weight: bold">PostgreSQL</span><span style="color: #333333">)</span>
+  <span style="color: #008800; font-weight: bold">else</span>
+    <span style="color: #BB0066; font-weight: bold">ConnectionString</span><span style="color: #333333">(</span><span style="color: #0e84b5; font-weight: bold">Environment</span>.<span style="color: #BB0066; font-weight: bold">GetEnvironmentVariable</span><span style="color: #333333">(</span><span style="background-color: #fff0f0">&quot;dburi&quot;</span><span style="color: #333333">),</span> <span style="color: #BB0066; font-weight: bold">PostgreSQL</span><span style="color: #333333">)</span>
+</pre></div>
+          </p>
+
+          <h4>Create the FAKE target to run the migrations</h4>
+          <p>
+              There are <a href="http://fsharp.github.io/FAKE/fluentmigrator.html">multiple targets </a> available. 
+              I just use <code>MigrateToLatest</code> here.
+          </p>
+          <p>
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #888888">// Migration Targets</span>
+<span style="color: #BB0066; font-weight: bold">Target</span> <span style="background-color: #fff0f0">&quot;MigrateLatest&quot;</span> <span style="color: #333333">(</span><span style="color: #008800; font-weight: bold">fun</span> <span style="color: #333333">_</span> <span style="color: #333333">-&gt;</span>
+  compile<span style="color: #007020">()</span>
+  <span style="color: #BB0066; font-weight: bold">MigrateToLatest</span> connection <span style="color: #333333">[</span>migrationsAssemblyOut<span style="color: #333333">]</span> options
+<span style="color: #333333">)</span>
+</pre></div>
+          </p>
+
+          <h3>How to run on local</h3>
+          <p>
+              <code>./build.sh MigrateLatest</code>
+          </p>
+
+          <h3>How to run on a heroku deployment</h3>
+          <code>
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">web master % heroku maintenance:on
+web master % heroku run ./build.sh MigrateLatest
+web master % heroku maintenance:off
+</pre></div>
+          </code>
+
+          <h3>Wrapping up and troubleshooting tips</h3>
+          <p>
+              With this configured we can run migrations and keep our application's database schema up to date in a robust manner.
+          </p>
+          <p>
+              I ran into quite a few errors while trying to get this work. If you get errors when compiling the C# code,
+              double check that all references are added and in their correct locations. 
+          </p>
+          <p>
+              The <code>Debug = true</code> parameter given to the <code>FAKE.CscHelper</code> will show you the actual <code>mcs</code> (mono c# handler)
+              command that was run. If you copy and paste this into your terminal you can get more detailed errors that help 
+              with C# specific problems.
+          </p>
+          <p>
+              With errors regarding the postgres connection, again make sure that all the required libraries are referenced correctly,
+              and that the PostgreSQL connection string matches what FluentMigrator is expecting.
+          </p>
+
+          <h3>Thanks</h3>
+          <p>
+              Thanks to everyone who worked on FluentMigrator and the FAKE helper!
+          </p>
+		
+      </section>
+    </main>
+  </body>
+
+  <svg style="position: absolute; width: 0; height: 0;" width="0" height="0" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+      <symbol id="icon-linkedin-square" viewBox="0 0 24 28">
+	<title>linkedin-square</title>
+	<path class="path1" d="M3.703 22.094h3.609v-10.844h-3.609v10.844zM7.547 7.906q-0.016-0.812-0.562-1.344t-1.453-0.531-1.477 0.531-0.57 1.344q0 0.797 0.555 1.336t1.445 0.539h0.016q0.922 0 1.484-0.539t0.562-1.336zM16.688 22.094h3.609v-6.219q0-2.406-1.141-3.641t-3.016-1.234q-2.125 0-3.266 1.828h0.031v-1.578h-3.609q0.047 1.031 0 10.844h3.609v-6.062q0-0.594 0.109-0.875 0.234-0.547 0.703-0.93t1.156-0.383q1.813 0 1.813 2.453v5.797zM24 6.5v15q0 1.859-1.32 3.18t-3.18 1.32h-15q-1.859 0-3.18-1.32t-1.32-3.18v-15q0-1.859 1.32-3.18t3.18-1.32h15q1.859 0 3.18 1.32t1.32 3.18z"></path>
+      </symbol>
+      <symbol id="icon-github-square" viewBox="0 0 24 28">
+	<title>github-square</title>
+	<path class="path1" d="M8.109 18.75q0.063-0.094-0.047-0.203-0.141-0.109-0.219-0.031-0.063 0.094 0.047 0.203 0.141 0.109 0.219 0.031zM7.672 18.109q-0.078-0.109-0.187-0.063-0.094 0.063 0 0.187 0.109 0.125 0.187 0.078 0.094-0.063 0-0.203zM7.031 17.484q0.031-0.063-0.078-0.125-0.109-0.031-0.125 0.031-0.047 0.078 0.063 0.125 0.125 0.031 0.141-0.031zM7.359 17.844q0.031-0.016 0.023-0.070t-0.055-0.086q-0.094-0.109-0.156-0.047t0.016 0.172q0.094 0.094 0.172 0.031zM8.703 19.016q0.031-0.109-0.141-0.172-0.141-0.047-0.203 0.063-0.031 0.109 0.141 0.172 0.141 0.047 0.203-0.063zM9.359 19.063q0-0.125-0.187-0.125-0.156 0-0.156 0.125t0.172 0.125 0.172-0.125zM9.969 18.953q-0.031-0.109-0.203-0.078t-0.141 0.141q0.031 0.125 0.187 0.094t0.156-0.156zM20 14q0-3.313-2.344-5.656t-5.656-2.344-5.656 2.344-2.344 5.656q0 2.609 1.531 4.695t3.938 2.898q0.281 0.047 0.414-0.078t0.133-0.313q0-0.812-0.016-1.484-0.094 0.016-0.242 0.039t-0.555 0.031-0.75-0.063-0.68-0.313-0.461-0.648q-0.359-0.922-0.891-1.156-0.031-0.016-0.070-0.055l-0.125-0.125t-0.109-0.148 0.063-0.117 0.305-0.055q0.094 0 0.234 0.031t0.469 0.242 0.516 0.555q0.25 0.438 0.586 0.656t0.68 0.219 0.594-0.055 0.469-0.148q0.109-0.734 0.516-1.078-0.766-0.094-1.344-0.289t-1.141-0.609-0.867-1.188-0.305-1.867q0-1.234 0.828-2.141-0.375-0.969 0.078-2.125 0.297-0.094 0.852 0.117t0.945 0.461l0.406 0.25q0.906-0.266 2-0.266t2 0.266q0.172-0.109 0.445-0.281t0.867-0.406 0.891-0.141q0.453 1.156 0.078 2.125 0.828 0.906 0.828 2.141 0 0.891-0.219 1.57t-0.555 1.094-0.836 0.695-0.977 0.406-1.070 0.187q0.547 0.484 0.547 1.484 0 0.625-0.008 1.391t-0.008 0.797q0 0.187 0.133 0.313t0.414 0.078q2.406-0.812 3.938-2.898t1.531-4.695zM24 6.5v15q0 1.859-1.32 3.18t-3.18 1.32h-15q-1.859 0-3.18-1.32t-1.32-3.18v-15q0-1.859 1.32-3.18t3.18-1.32h15q1.859 0 3.18 1.32t1.32 3.18z"></path>
+      </symbol>
+    </defs>
+  </svg>
+</html>
