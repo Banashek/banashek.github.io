@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../style.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="post.css" media="screen" />
+    <title>Jonathan Banashek - Blog</title>
+  </head>
+	<style type="text/css">
+	<!--
+	pre { white-space: pre-wrap; font-family: monospace; color: #d0d0d0; background-color: #262626; }
+	.Operator { color: #d7d787; }
+	.Keyword { color: #d75f87; }
+	.LineNr { color: #87875f; background-color: #303030; padding-bottom: 1px; }
+	.Identifier { color: #ffafaf; }
+	.Type { color: #d7af5f; }
+	-->
+	</style>
+
+  <body>
+    <header>
+      <h1>Jonathan Banashek</h1>
+      <nav>
+        <ul>
+          <li><a href="https://www.github.com/banashek" class="header-link"><svg class="icon icon-github-square"><use xlink:href="#icon-github-square"></use></svg></a></li>
+          <li><a href="../index.html" class="header-link">Blog</a></li>
+          <li><a href="../portfolio.html" class="header-link">Portfolio</a></li>
+	  	  <li><a href="../about.html" class="header-link">About</a></li>
+          <li><a href="https://www.linkedin.com/pub/jonathan-banashek/30/409/758" class="header-link"><svg class="icon icon-linkedin-square"><use xlink:href="#icon-linkedin-square"></use></svg></a></li>
+        </ul>
+      </nav>
+    </header>
+    <hr>
+    <main>
+      <section>
+		  <h2 class="title">A brief peek at  Universal F#</h2>
+
+          <h3>Why Univeral Applications</h3>
+
+	  <p>
+		  I don't remember when the term 'Isomorphic Javascript' started getting tossed around, but I remember a few developers telling me about the MEAN stack and
+		  how things like a shared language on the front-end and the server was "the future". They weren't technically wrong. There are a lot of shops running node on
+		  the backend and react/angular/vue on the frontend, but I didn't seem to understand the benefit that it would bring. I think that having a functional, type-safe
+		  SPA that will always be in sync with it's backend adds enough to the previous argument to make it worthwhile.
+	  </p>
+
+	  <h3>Share Everything</h3>
+
+	  <p>
+		  Because the base API surface for Fable is not drastically different from that of F# on mono, many things can be shared between the applications. Is as easy 
+		  as dumping them into a shared folder and referencing the items within from each project. This allows you to share all kinds of code including ViewModels, 
+		  Validation Logic, Localization/Internationalization, and probably a lot of other things I can't think of off the top of my head at the moment.
+	  </p>
+
+	  <h3>A Quick Example</h3>
+
+	  <p>
+		  Source for the following example can be found on <a href="https://github.com/Banashek/Universal-FSharp-Samples/tree/master/JsonApi">my github</a>.
+	  </p>
+
+	  <p>
+		  The first thing we do is create our suave and fable-elmish projects. I'd recommend starting either with one of the samples found 
+		  <a href="https://github.com/Banashek/Universal-FSharp-Samples">here</a>, or with the WIP 
+		  <a href="https://github.com/fable-compiler/fable-suave-scaffold">Fable-Suave-Scaffold</a>.
+	  </p>
+
+	  <p>
+	  Next we create our shared <a href="https://github.com/Banashek/Universal-FSharp-Samples/blob/master/JsonApi/src/shared/Types.fs">Types</a>. In this example, we're
+	  modeling pokemon. 
+	
+	  <h4>Types.fs</h4>
+<pre id='vimCodeElement'>
+<span id="L1" class="LineNr"> 1 </span><span class="Keyword">module</span> SharedTypes.Types
+<span id="L2" class="LineNr"> 2 </span>
+<span id="L3" class="LineNr"> 3 </span><span class="Keyword">type</span> <span class="Identifier">PokemonType</span> <span class="Operator">=</span>
+<span id="L4" class="LineNr"> 4 </span>    <span class="Operator">|</span> Normal
+<span id="L5" class="LineNr"> 5 </span>    <span class="Operator">|</span> Fire
+<span id="L6" class="LineNr"> 6 </span>    <span class="Operator">|</span> Water
+<span id="L7" class="LineNr"> 7 </span>    <span class="Operator">|</span> Electric
+<span id="L8" class="LineNr"> 8 </span>    <span class="Operator">|</span> Grass
+<span id="L9" class="LineNr"> 9 </span>    <span class="Operator">|</span> Ice
+<span id="L10" class="LineNr">10 </span>    <span class="Operator">|</span> Fighting
+<span id="L11" class="LineNr">11 </span>    <span class="Operator">|</span> Poison
+<span id="L12" class="LineNr">12 </span>    <span class="Operator">|</span> Ground
+<span id="L13" class="LineNr">13 </span>    <span class="Operator">|</span> Flying
+<span id="L14" class="LineNr">14 </span>    <span class="Operator">|</span> Psychic
+<span id="L15" class="LineNr">15 </span>    <span class="Operator">|</span> Bug
+<span id="L16" class="LineNr">16 </span>    <span class="Operator">|</span> Rock
+<span id="L17" class="LineNr">17 </span>    <span class="Operator">|</span> Ghost
+<span id="L18" class="LineNr">18 </span>    <span class="Operator">|</span> Dragon
+<span id="L19" class="LineNr">19 </span>    <span class="Operator">|</span> Dark
+<span id="L20" class="LineNr">20 </span>    <span class="Operator">|</span> Steel
+<span id="L21" class="LineNr">21 </span>    <span class="Operator">|</span> Fairy
+<span id="L22" class="LineNr">22 </span>
+<span id="L23" class="LineNr">23 </span><span class="Keyword">type</span> <span class="Identifier">BriefPokemon</span> <span class="Operator">=</span> <span class="Keyword">{</span>
+<span id="L24" class="LineNr">24 </span>    num : <span class="Type">string</span>
+<span id="L25" class="LineNr">25 </span>    name : <span class="Type">string</span>
+<span id="L26" class="LineNr">26 </span><span class="Keyword">}</span>
+<span id="L27" class="LineNr">27 </span>
+<span id="L28" class="LineNr">28 </span><span class="Keyword">type</span> <span class="Identifier">Pokemon</span> <span class="Operator">=</span> <span class="Keyword">{</span>
+<span id="L29" class="LineNr">29 </span>    id : <span class="Type">int</span>
+<span id="L30" class="LineNr">30 </span>    num : <span class="Type">string</span>
+<span id="L31" class="LineNr">31 </span>    name : <span class="Type">string</span>
+<span id="L32" class="LineNr">32 </span>    img : <span class="Type">string</span>
+<span id="L33" class="LineNr">33 </span>    pokemonType : PokemonType <span class="Type">list</span>
+<span id="L34" class="LineNr">34 </span>    height : <span class="Type">float</span>
+<span id="L35" class="LineNr">35 </span>    weight : <span class="Type">float</span>
+<span id="L36" class="LineNr">36 </span>    weaknesses : PokemonType <span class="Type">list</span>
+<span id="L37" class="LineNr">37 </span>    nextEvolutions : BriefPokemon <span class="Type">list</span>
+<span id="L38" class="LineNr">38 </span>    previousEvolutions : BriefPokemon <span class="Type">list</span>
+<span id="L39" class="LineNr">39 </span><span class="Keyword">}</span>
+</pre>
+	  </p>
+
+	  <p>
+	  	After adding the file to both projects, we can then create the back-end producer and front-end consumer portions.
+
+		<h4>Server App.fs</h4>
+<pre id='vimCodeElement'>
+<span id="L17" class="LineNr">17 </span><span class="Keyword">let</span> <span class="Function">app</span> <span class="Operator">=</span>
+<span id="L18" class="LineNr">18 </span>    choose <span class="Keyword">[</span>
+<span id="L19" class="LineNr">19 </span>        path <span class="String">&quot;/&quot;</span> <span class="Operator">&gt;</span><span class="Operator">=</span><span class="Operator">&gt;</span> Files.browseFileHome <span class="String">&quot;index.html&quot;</span>
+<span id="L20" class="LineNr">20 </span>        path <span class="String">&quot;/bundle.js&quot;</span> <span class="Operator">&gt;</span><span class="Operator">=</span><span class="Operator">&gt;</span> Files.browseFileHome <span class="String">&quot;bundle.js&quot;</span>
+<span id="L24" class="LineNr">24 </span>        path <span class="String">&quot;/pokemon&quot;</span> <span class="Operator">&gt;</span><span class="Operator">=</span><span class="Operator">&gt;</span> <span class="Keyword">(</span>OK <span class="Keyword">(</span>JsonConvert.SerializeObject<span class="Keyword">(</span>allPokemon, JsonConverter<span class="Keyword">())))</span>
+<span id="L25" class="LineNr">25 </span>            <span class="Operator">&gt;</span><span class="Operator">=</span><span class="Operator">&gt;</span> setMimeType <span class="String">&quot;application/json; charset=utf-8&quot;</span>
+<span id="L26" class="LineNr">26 </span>        NOT_FOUND <span class="String">&quot;404 - Not found.&quot;</span>
+<span id="L27" class="LineNr">27 </span>    <span class="Keyword">]</span>
+</pre>
+
+		<h4>Client App.fs</h4>
+<pre id='vimCodeElement'>
+<span id="L27" class="LineNr"> 27 </span><span class="Keyword">let</span> <span class="Function">getPokemon</span> <span class="Keyword">(</span>f : <span class="Type">string</span><span class="Keyword">)</span> <span class="Operator">=</span>
+<span id="L28" class="LineNr"> 28 </span>  promise <span class="Keyword">{</span>
+<span id="L29" class="LineNr"> 29 </span>    <span class="Keyword">return</span>! Fable.PowerPack.Fetch.fetchAs<span class="Operator">&lt;</span>PokeList<span class="Operator">&gt;</span> <span class="Keyword">(</span><span class="String">&quot;/pokemon&quot;</span><span class="Keyword">)</span> <span class="Keyword">[]</span>
+<span id="L30" class="LineNr"> 30 </span>  <span class="Keyword">}</span>
+</pre>
+	  </p>
+
+	  <p>
+		  Since we share the models, we can do things like match the Pokemon Type using exaustive pattern matching to return the appropriate background color:
+<pre id='vimCodeElement'>
+<span id="L45" class="LineNr"> 45 </span><span class="Keyword">let</span> <span class="Function">getPokeBGColor</span> t <span class="Operator">=</span>
+<span id="L46" class="LineNr"> 46 </span>  <span class="Keyword">match</span> t <span class="Keyword">with</span>
+<span id="L47" class="LineNr"> 47 </span>  <span class="Operator">|</span> Normal <span class="Operator">-&gt;</span> <span class="String">&quot;#CDCDCD&quot;</span>
+<span id="L48" class="LineNr"> 48 </span>  <span class="Operator">|</span> Fire <span class="Operator">-&gt;</span> <span class="String">&quot;#D00006&quot;</span>
+<span id="L49" class="LineNr"> 49 </span>  <span class="Operator">|</span> Water <span class="Operator">-&gt;</span> <span class="String">&quot;#4A82FF&quot;</span>
+<span id="L50" class="LineNr"> 50 </span>  <span class="Operator">|</span> Electric <span class="Operator">-&gt;</span> <span class="String">&quot;#B79D04&quot;</span>
+<span id="L51" class="LineNr"> 51 </span>  <span class="Operator">|</span> Grass <span class="Operator">-&gt;</span> <span class="String">&quot;#549057&quot;</span>
+<span id="L52" class="LineNr"> 52 </span>  <span class="Operator">|</span> Ice <span class="Operator">-&gt;</span> <span class="String">&quot;#73C4CB&quot;</span>
+<span id="L53" class="LineNr"> 53 </span>  <span class="Operator">|</span> Fighting <span class="Operator">-&gt;</span> <span class="String">&quot;#924036&quot;</span>
+<span id="L54" class="LineNr"> 54 </span>  <span class="Operator">|</span> Poison <span class="Operator">-&gt;</span> <span class="String">&quot;#8400DC&quot;</span>
+<span id="L55" class="LineNr"> 55 </span>  <span class="Operator">|</span> Ground <span class="Operator">-&gt;</span> <span class="String">&quot;#803909&quot;</span>
+<span id="L56" class="LineNr"> 56 </span>  <span class="Operator">|</span> Flying <span class="Operator">-&gt;</span> <span class="String">&quot;#80ADFF&quot;</span>
+<span id="L57" class="LineNr"> 57 </span>  <span class="Operator">|</span> Psychic <span class="Operator">-&gt;</span> <span class="String">&quot;#2B0F48&quot;</span>
+<span id="L58" class="LineNr"> 58 </span>  <span class="Operator">|</span> Bug <span class="Operator">-&gt;</span> <span class="String">&quot;#687F35&quot;</span>
+<span id="L59" class="LineNr"> 59 </span>  <span class="Operator">|</span> Rock <span class="Operator">-&gt;</span> <span class="String">&quot;#363636&quot;</span>
+<span id="L60" class="LineNr"> 60 </span>  <span class="Operator">|</span> Ghost <span class="Operator">-&gt;</span> <span class="String">&quot;#6257AD&quot;</span>
+<span id="L61" class="LineNr"> 61 </span>  <span class="Operator">|</span> Dragon <span class="Operator">-&gt;</span> <span class="String">&quot;#818C6B&quot;</span>
+<span id="L62" class="LineNr"> 62 </span>  <span class="Operator">|</span> Dark <span class="Operator">-&gt;</span> <span class="String">&quot;#818C6B&quot;</span>
+<span id="L63" class="LineNr"> 63 </span>  <span class="Operator">|</span> Steel <span class="Operator">-&gt;</span> <span class="String">&quot;#818C6B&quot;</span>
+<span id="L64" class="LineNr"> 64 </span>  <span class="Operator">|</span> Fairy <span class="Operator">-&gt;</span> <span class="String">&quot;#818C6B&quot;</span>
+</pre>
+
+	  </p>
+
+	  <h3>Final Product</h3>
+	  <p>
+	  <img src="../assets/pokecardflip.gif" alt="animated gif example of the program"/>
+	  </p>
+
+      </section>
+    </main>
+  </body>
+
+  <svg style="position: absolute; width: 0; height: 0;" width="0" height="0" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+      <symbol id="icon-linkedin-square" viewBox="0 0 24 28">
+	<title>linkedin-square</title>
+	<path class="path1" d="M3.703 22.094h3.609v-10.844h-3.609v10.844zM7.547 7.906q-0.016-0.812-0.562-1.344t-1.453-0.531-1.477 0.531-0.57 1.344q0 0.797 0.555 1.336t1.445 0.539h0.016q0.922 0 1.484-0.539t0.562-1.336zM16.688 22.094h3.609v-6.219q0-2.406-1.141-3.641t-3.016-1.234q-2.125 0-3.266 1.828h0.031v-1.578h-3.609q0.047 1.031 0 10.844h3.609v-6.062q0-0.594 0.109-0.875 0.234-0.547 0.703-0.93t1.156-0.383q1.813 0 1.813 2.453v5.797zM24 6.5v15q0 1.859-1.32 3.18t-3.18 1.32h-15q-1.859 0-3.18-1.32t-1.32-3.18v-15q0-1.859 1.32-3.18t3.18-1.32h15q1.859 0 3.18 1.32t1.32 3.18z"></path>
+      </symbol>
+      <symbol id="icon-github-square" viewBox="0 0 24 28">
+	<title>github-square</title>
+	<path class="path1" d="M8.109 18.75q0.063-0.094-0.047-0.203-0.141-0.109-0.219-0.031-0.063 0.094 0.047 0.203 0.141 0.109 0.219 0.031zM7.672 18.109q-0.078-0.109-0.187-0.063-0.094 0.063 0 0.187 0.109 0.125 0.187 0.078 0.094-0.063 0-0.203zM7.031 17.484q0.031-0.063-0.078-0.125-0.109-0.031-0.125 0.031-0.047 0.078 0.063 0.125 0.125 0.031 0.141-0.031zM7.359 17.844q0.031-0.016 0.023-0.070t-0.055-0.086q-0.094-0.109-0.156-0.047t0.016 0.172q0.094 0.094 0.172 0.031zM8.703 19.016q0.031-0.109-0.141-0.172-0.141-0.047-0.203 0.063-0.031 0.109 0.141 0.172 0.141 0.047 0.203-0.063zM9.359 19.063q0-0.125-0.187-0.125-0.156 0-0.156 0.125t0.172 0.125 0.172-0.125zM9.969 18.953q-0.031-0.109-0.203-0.078t-0.141 0.141q0.031 0.125 0.187 0.094t0.156-0.156zM20 14q0-3.313-2.344-5.656t-5.656-2.344-5.656 2.344-2.344 5.656q0 2.609 1.531 4.695t3.938 2.898q0.281 0.047 0.414-0.078t0.133-0.313q0-0.812-0.016-1.484-0.094 0.016-0.242 0.039t-0.555 0.031-0.75-0.063-0.68-0.313-0.461-0.648q-0.359-0.922-0.891-1.156-0.031-0.016-0.070-0.055l-0.125-0.125t-0.109-0.148 0.063-0.117 0.305-0.055q0.094 0 0.234 0.031t0.469 0.242 0.516 0.555q0.25 0.438 0.586 0.656t0.68 0.219 0.594-0.055 0.469-0.148q0.109-0.734 0.516-1.078-0.766-0.094-1.344-0.289t-1.141-0.609-0.867-1.188-0.305-1.867q0-1.234 0.828-2.141-0.375-0.969 0.078-2.125 0.297-0.094 0.852 0.117t0.945 0.461l0.406 0.25q0.906-0.266 2-0.266t2 0.266q0.172-0.109 0.445-0.281t0.867-0.406 0.891-0.141q0.453 1.156 0.078 2.125 0.828 0.906 0.828 2.141 0 0.891-0.219 1.57t-0.555 1.094-0.836 0.695-0.977 0.406-1.070 0.187q0.547 0.484 0.547 1.484 0 0.625-0.008 1.391t-0.008 0.797q0 0.187 0.133 0.313t0.414 0.078q2.406-0.812 3.938-2.898t1.531-4.695zM24 6.5v15q0 1.859-1.32 3.18t-3.18 1.32h-15q-1.859 0-3.18-1.32t-1.32-3.18v-15q0-1.859 1.32-3.18t3.18-1.32h15q1.859 0 3.18 1.32t1.32 3.18z"></path>
+      </symbol>
+    </defs>
+  </svg>
+</html>
+
