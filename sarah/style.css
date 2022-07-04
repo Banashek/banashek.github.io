@@ -1,0 +1,22 @@
+.title {
+    text-align: center;
+    color: #2a4365; /* blue 800 */
+}
+
+.navbar-container {
+    background-color: #EDF2F7; /* gray 100 */
+}
+
+.nav-icon {
+    font-size: 2rem;
+    color: #2c5282; /* blue 700 */
+}
+
+.nav-text {
+    font-size: 1.5rem;
+    color: #2c5282; /* blue 700 */
+}
+
+#about-me {
+    width: 75%;
+}
